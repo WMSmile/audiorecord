@@ -34,7 +34,8 @@ class AVPlayerManger: NSObject {
     
     //代理
     weak var delegate:AVPlayerMangerDelegate?
-
+    //block回调
+    var changeCallBack:((_ status:AVplayerMangerPlayStatus) -> Void)? = nil;
 
     
     func play(urlStr:String){
@@ -46,7 +47,7 @@ class AVPlayerManger: NSObject {
                 //当前的时间
                 let currentTime = CMTimeGetSeconds(time);
                 let totalTime = CMTimeGetSeconds((self.songItem?.duration)!);
-                self.timeCallBack(current: Float(currentTime), total: Float(totalTime));
+                self.timeCallBack(currentTime: Float(currentTime), totalTime: Float(totalTime));
             });
         }else {
             self.player?.replaceCurrentItem(with: songItem);
@@ -110,14 +111,14 @@ class AVPlayerManger: NSObject {
     //MARK:- 移除通知
     func removeNorifications() -> Void {
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
+        self.timeObserver = nil;
     }
 
 
     //MARK:- 进度条
-    func timeCallBack(current:Float,total:Float) -> Void {
+    func timeCallBack(currentTime:Float,totalTime:Float) -> Void {
         //计算 progress
-        print("current == \(current) total == \(total)");
-        
+        print("progress = \(currentTime/totalTime)  current == \(currentTime) total == \(totalTime)");
         
     }
 
@@ -128,11 +129,32 @@ class AVPlayerManger: NSObject {
         self.handleDelegate(.end);
         
     }
+    //MARK:- 获取播放的状态
+    func fetchIsPlayingStatus() -> Bool {
+        guard (self.player != nil) else {
+            return false;
+        }
+        if ((self.player?.rate)! >= Float(1)) {
+            return false
+        }
+        else {
+            return true;
+        }
+    }
+    
+    
+    //MARK:- playStatus
+    func observerPlayStatusChange(_ callback:@escaping (_ status:AVplayerMangerPlayStatus) -> Void) -> Void {
+        self.changeCallBack = callback;
+    }
     
     //MARK:- 执行代理
     func handleDelegate(_ status:AVplayerMangerPlayStatus) -> Void {
         if (self.delegate != nil) && (self.delegate?.responds(to: #selector(AVPlayerMangerDelegate.AVPlayerMangerPlayStatusChange(_:))))! {
             self.delegate?.AVPlayerMangerPlayStatusChange!(status);
+        }
+        if (changeCallBack != nil) {
+            self.changeCallBack!(status);
         }
     }
 
