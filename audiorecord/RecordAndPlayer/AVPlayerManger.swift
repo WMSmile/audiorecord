@@ -40,7 +40,17 @@ class AVPlayerManger: NSObject {
     
     func play(urlStr:String){
         self.removeObservers();
-        self.songItem = AVPlayerItem.init(url: URL.init(string: urlStr)!)
+        let audioSession = AVAudioSession.sharedInstance();
+        try! audioSession.setCategory(AVAudioSessionCategoryPlayback);
+        try! audioSession.setActive(true);
+        print("urlstr == \(urlStr)");
+        var url:URL;
+        if urlStr.contains("http://") || urlStr.contains("https://") {
+            url = URL.init(string: urlStr)!;
+        }else {
+            url = URL.init(fileURLWithPath: urlStr);
+        }
+        self.songItem = AVPlayerItem.init(url: url)
         if self.player == nil {
             self.player = AVPlayer.init(playerItem: songItem);
             self.timeObserver = self.player?.addPeriodicTimeObserver(forInterval: CMTimeMake(Int64(1.0), Int32(1.0)), queue: DispatchQueue.main, using: { (time) in

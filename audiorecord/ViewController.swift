@@ -95,6 +95,9 @@ class ViewController: UIViewController
 //        player?.play();
 //        item.addObserver(self, forKeyPath: "status", options: NSKeyValueObservingOptions.new, context: nil);
         AVPlayerManger.getInstance.play(urlStr: "http://localhost/audio/test.mp3");
+//        AVPlayerManger.getInstance.play(urlStr: RecordManager.getInstance.mp3_filePath);
+//        AVPlayerManger.getInstance.play(urlStr: "http://pic.bangjia.me/voice/CC-BX1710310033_8ebb2c.mp3");
+
         
     }
 //    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
